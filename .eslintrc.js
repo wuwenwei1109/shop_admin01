@@ -28,6 +28,9 @@ module.exports = {
     'space-before-function-paren': 'off',
     'eol-last': 'off',
     'quotes': 'off',
-    'semi': 'off'
+    'semi': 'off',
+    'padded-blocks': 'off',
+    'no-trailing-spaces': 'off',
+    'indent': 'off'
   }
 }
