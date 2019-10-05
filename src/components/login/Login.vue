@@ -2,12 +2,7 @@
   <div class="login-wrapper">
     <el-row type="flex" class="loginForm" justify="center" align="middle">
       <el-col :xs="12" :sm="10" :md="8" :lg="6" :xl="4" class="login-content">
-        <el-form
-          label-position="top"
-          :model="loginForm"
-          :rules="rules"
-          ref="loginForm"
-        >
+        <el-form label-position="top" :model="loginForm" :rules="rules" ref="loginForm">
           <el-form-item label="用户名" prop="username">
             <el-input v-model="loginForm.username"></el-input>
           </el-form-item>
@@ -25,7 +20,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "axios"
 
 export default {
   data() {
@@ -57,22 +52,28 @@ export default {
           }
         ]
       }
-    };
+    }
   },
   methods: {
     login() {
       axios
         .post("http://localhost:8888/api/private/v1/login", this.loginForm)
         .then(res => {
-          const { data, meta } = res.data;
-          console.log(data);
+          const { data, meta } = res.data
+          // console.log(data)
           if (meta.status === 200) {
-            console.log("登录成功");
-            this.$router.push("/home");
+            // console.log("登录成功")
+            localStorage.setItem('token', data.token);
+            this.$router.push("/home")
           } else {
-            this.$message.error(meta.msg);
+            // this.$message.error(meta.msg);
+            this.$message({
+              type: 'error',
+              message: meta.msg,
+              duration: 1000
+            })
           }
-        });
+        })
     },
 
     submitForm() {
@@ -83,15 +84,15 @@ export default {
 
           // 获取用户名和密码
           // console.log(this.loginForm);
-          this.login();
+          this.login()
         } else {
           // 校验失败
-          return false;
+          return false
         }
-      });
+      })
     },
     resetForm() {
-      this.$refs.loginForm.resetFields();
+      this.$refs.loginForm.resetFields()
     }
   }
 };

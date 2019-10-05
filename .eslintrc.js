@@ -31,6 +31,9 @@ module.exports = {
     'semi': 'off',
     'padded-blocks': 'off',
     'no-trailing-spaces': 'off',
-    'indent': 'off'
+    'indent': 'off',
+    'no-undef': 'off',
+    'no-unused-expressions': 'off',
+    'no-multiple-empty-lines': 'off'
   }
 }
