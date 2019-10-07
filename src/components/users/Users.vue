@@ -1,49 +1,71 @@
 <template>
   <div>
     <el-table
-      :data="tableData"
+      :data="userList"
       stripe>
       <el-table-column
-        prop="date"
-        label="日期"
-        width="180">
-      </el-table-column>
-      <el-table-column
-        prop="name"
+        prop="username"
         label="姓名"
         width="180">
       </el-table-column>
       <el-table-column
+        prop="email"
+        label="邮箱"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="mobile"
+        label="电话">
+      </el-table-column>
+      <el-table-column
+        prop="mg_state"
+        label="用户状态">
+      </el-table-column>
+      <el-table-column
         prop="address"
-        label="地址">
+        label="操作">
       </el-table-column>
     </el-table>
   </div>
 </template>
 
 <script>
+// import axios from 'axios'
+
 export default {
+  created () {
+    this.getUserLists()
+  },
+
   data() {
       return {
-        tableData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }]
+        userList: []
       }
+    },
+
+  methods: {
+    getUserLists() {
+      this.$http.get('/users', {
+        params: {
+          // 当前页
+          pagenum: 1,
+          // 每页展示多少条数据
+          pagesize: 3
+        }
+        // 将 token 作为请求头，传递给服务器接口
+        // headers: {
+        //   Authorization: localStorage.getItem('token')
+        // }
+      })
+      .then(res => {
+        console.log(res);
+        const { data, meta } = res.data;
+        if (meta.status === 200) {
+          this.userList = data.users
+        }
+      })
     }
+  }
 }
 </script>
 

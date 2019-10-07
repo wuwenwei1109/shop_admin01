@@ -25,7 +25,7 @@
           @close 菜单收起事件
         -->
         <el-menu :router="true"
-          default-active="2-1"
+          default-active="/home/users"
           class="el-menu-vertical-demo"
           @open="handleOpen"
           @close="handleClose"
@@ -37,7 +37,7 @@
               <i class="el-icon-location"></i>
               <span>用户管理</span>
             </template>
-            <el-menu-item index="home/users">
+            <el-menu-item index="/home/users">
               <template slot="title">
                 <i class="el-icon-menu"></i>
                 <span>用户列表</span>
