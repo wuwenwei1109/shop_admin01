@@ -18,7 +18,7 @@ axios.defaults.baseURL = 'http://localhost:8888/api/private/v1'
 // 请求拦截器
 axios.interceptors.request.use(function (config) {
   // 在请求发送之前做一些事情
-  console.log('请求拦截器', config)
+  // console.log('请求拦截器', config)
   if (!config.url.endsWith('/login')) {
     config.headers['Authorization'] = localStorage.getItem('token')
   }
@@ -28,7 +28,7 @@ axios.interceptors.request.use(function (config) {
 // 响应拦截器
 axios.interceptors.response.use(function (response) {
   // 在获取到响应数据的时候做一些事情
-  console.log('请求响应器', response)
+  // console.log('请求响应器', response)
   if (response.data.meta.status === 401) {
     router.push('/login')
     localStorage.removeItem('token')
