@@ -5,6 +5,7 @@
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
+    
     <el-row :gutter="20">
       <el-col :span="6">
         <el-input placeholder="请输入内容" v-model="queryStr" class="input-with-select">
@@ -182,8 +183,35 @@ export default {
   methods: {
     // 获取用户列表数据
     // curPage = 1 给参数添加默认值
-    getUserList(curPage = 1) {
-      this.$http.get('/users', {
+    // getUserList(curPage = 1) {
+    //   this.$http.get('/users', {
+    //     params: {
+    //       // 当前页
+    //       pagenum: curPage,
+    //       // 每页展示多少条数据
+    //       pagesize: 3,
+    //       // 查询条件
+    //       query: this.queryStr || ''
+    //     }
+    //     // 将 token 作为请求头，传递给服务器接口
+    //     // headers: {
+    //     //   Authorization: localStorage.getItem('token')
+    //     // }
+    //   })
+    //   .then(res => {
+    //     console.log('请求成功', res);
+    //     const { data, meta } = res.data;
+    //     if (meta.status === 200) {
+    //       // 获取数据成功
+    //       this.userList = data.users
+    //       this.total = data.total
+    //       this.curPage = data.pagenum
+    //     }
+    //   })
+    // },
+
+    async getUserList(curPage = 1) {
+      const res = await this.$http.get('/users', {
         params: {
           // 当前页
           pagenum: curPage,
@@ -192,21 +220,14 @@ export default {
           // 查询条件
           query: this.queryStr || ''
         }
-        // 将 token 作为请求头，传递给服务器接口
-        // headers: {
-        //   Authorization: localStorage.getItem('token')
-        // }
       })
-      .then(res => {
-        console.log('请求成功', res);
-        const { data, meta } = res.data;
-        if (meta.status === 200) {
-          // 获取数据成功
-          this.userList = data.users
-          this.total = data.total
-          this.curPage = data.pagenum
-        }
-      })
+      const { data, meta } = res.data;
+      if (meta.status === 200) {
+        // 获取数据成功
+        this.userList = data.users
+        this.total = data.total
+        this.curPage = data.pagenum
+      }
     },
 
     // 分页获取数据
@@ -222,24 +243,23 @@ export default {
     },
 
     // 启用或禁用用户
-    changeUserState(id, curState) {
+    async changeUserState(id, curState) {
       // console.log(id, curState);
-      this.$http.put(`/users/${id}/state/${curState}`).then(res => {
-        const {data, meta} = res.data
-        if (meta.status === 200) {
-          this.$message({
-            type: 'success',
-            message: data.mg_state === 0 ? '禁用成功' : '启用成功',
-            duration: 1000
-          })
-        } else {
-          this.$message({
-            type: 'error',
-            message: meta.msg,
-            duration: 1000
-          })
-        }
-      })
+      const res = await this.$http.put(`/users/${id}/state/${curState}`)
+      const {data, meta} = res.data
+      if (meta.status === 200) {
+        this.$message({
+          type: 'success',
+          message: data.mg_state === 0 ? '禁用成功' : '启用成功',
+          duration: 1000
+        })
+      } else {
+        this.$message({
+          type: 'error',
+          message: meta.msg,
+          duration: 1000
+        })
+      }
     },
 
     // 展示用户添加对话框
