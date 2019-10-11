@@ -51,7 +51,7 @@
         <template slot-scope="scope">
           <el-button type="primary" plain size="mini" icon="el-icon-edit" @click="showUserEditDailog(scope.row)"></el-button>
           <el-button type="danger" plain size="mini" icon="el-icon-delete" @click="delUserById(scope.row.id)"></el-button>
-          <el-button type="success" plain size="mini" icon="el-icon-check">分配角色</el-button>
+          <el-button type="success" plain size="mini" icon="el-icon-check" @click="showUserAssignDialog">分配角色</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -103,6 +103,25 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="userEditDialog = false">取 消</el-button>
         <el-button type="primary" @click="editUser">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 给用户分配角色 -->
+    <el-dialog title="分配角色" :visible.sync="userAssignDialog">
+      <el-form :model="userAssignForm">
+        <el-form-item label="用户名" label-width="120px">
+          <el-input v-model="userAssignForm.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="角色列表" label-width="120px">
+          <el-select v-model="userAssignForm.roles" placeholder="请选择角色">
+            <el-option label="区域一" value="shanghai"></el-option>
+            <el-option label="区域二" value="beijing"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -176,6 +195,18 @@ export default {
               trigger: 'change'
             }
           ]
+        },
+        // 分配角色
+        userAssignDialog: false,
+        userAssignForm: {
+          // 用户id
+          id: -1,
+          // 用户角色id
+          rid: -1,
+          // 用户名
+          username: '',
+          // 角色列表
+          roles: []
         }
       }
     },
@@ -368,6 +399,11 @@ export default {
           return false
         }
       })
+    },
+
+    // 展示用户分配角色对话框
+    showUserAssignDialog() {
+      this.userAssignDialog = true
     }
   }
 }
