@@ -51,7 +51,7 @@
         <template slot-scope="scope">
           <el-button type="primary" plain size="mini" icon="el-icon-edit" @click="showUserEditDailog(scope.row)"></el-button>
           <el-button type="danger" plain size="mini" icon="el-icon-delete" @click="delUserById(scope.row.id)"></el-button>
-          <el-button type="success" plain size="mini" icon="el-icon-check" @click="showUserAssignDialog">分配角色</el-button>
+          <el-button type="success" plain size="mini" icon="el-icon-check" @click="showUserAssignDialog(scope.row)">分配角色</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -108,20 +108,19 @@
 
     <!-- 给用户分配角色 -->
     <el-dialog title="分配角色" :visible.sync="userAssignDialog">
-      <el-form :model="userAssignForm">
-        <el-form-item label="用户名" label-width="120px">
+      <el-form :model="userAssignForm" ref="userAssignForm">
+        <el-form-item label="用户名" label-width="120px" prop="username">
           <el-input v-model="userAssignForm.username" disabled></el-input>
         </el-form-item>
-        <el-form-item label="角色列表" label-width="120px">
-          <el-select v-model="userAssignForm.roles" placeholder="请选择角色">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+        <el-form-item label="角色列表" label-width="120px" prop="email">
+          <el-select v-model="userAssignForm.roleId" placeholder="请选择角色">
+            <el-option v-for="item in rolesList" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button @click="userAssignDialog = false">取 消</el-button>
+        <el-button type="primary" @click="assignRole2User">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -134,12 +133,14 @@ export default {
   created () {
     // 发送请求，获取数据
     this.getUserList()
+    this.getRoleList()
   },
 
   data() {
       return {
+        // 用户数据列表
         userList: [],
-        // 每页大小
+        // 每页条数
         pageSize: 3,
         // 当前页码
         curPage: 1,
@@ -149,14 +150,14 @@ export default {
         queryStr: '',
         // 控制对话框的展示和隐藏
         userAddDialog: false,
-
+        // 添加用户的数据对象
         userAddForm: {
           username: '',
           password: '',
           email: '',
           mobile: ''
         },
-
+        // 添加用户的表单验证规则
         userAddRules: {
           username: [
             { required: true, message: "用户名为必填项", trigger: "blur" },
@@ -180,12 +181,14 @@ export default {
 
         // 控制编辑用户对话框的展示和隐藏
         userEditDialog: false,
+        // 编辑用户的数据对象
         userEditForm: {
           id: -1,
           username: '',
           email: '',
           mobile: ''
         },
+        // 编辑用户的表单验证
         userEditRules: {
           mobile: [
             {
@@ -196,18 +199,19 @@ export default {
             }
           ]
         },
-        // 分配角色
+        // 控制分配角色对话框展示和隐藏
         userAssignDialog: false,
+        // 分配角色的数据
         userAssignForm: {
           // 用户id
-          id: -1,
+          userId: -1,
           // 用户角色id
-          rid: -1,
+          roleId: -1,
           // 用户名
-          username: '',
-          // 角色列表
-          roles: []
-        }
+          username: ''
+        },
+
+        rolesList: []
       }
     },
 
@@ -402,8 +406,56 @@ export default {
     },
 
     // 展示用户分配角色对话框
-    showUserAssignDialog() {
+    async showUserAssignDialog(user) {
       this.userAssignDialog = true
+      // 给分配角色数据赋值
+      this.userAssignForm.username = user.username
+      // 暂存用户id
+      this.userAssignForm.userId = user.id
+      // 选中默认角色
+      // 根据当前用户的id，获取用的角色id
+      const res = await this.$http.get(`users/${user.id}`)
+      const { meta, data } = res.data
+      if (meta.status === 200) {
+        // 设置当前用户具有的角色id
+        this.userAssignForm.roleId = data.rid
+
+        // 没有角色情况下，进行特殊处理，什么不选中
+        if (data.rid === -1) {
+          this.userAssignForm.roleId = ''
+        }
+      }
+    },
+
+    // 获取角色列表
+    async getRoleList () {
+      const res = await this.$http.get('/roles')
+
+      // console.log(res)
+      const { meta, data } = res.data
+      if (meta.status === 200) {
+        this.rolesList = data
+      }
+    },
+
+    // 给用户分配角色
+    async assignRole2User () {
+      // 1 拿到用户id 和 角色id
+      //  直接从 userAssignForm 中获取
+      const { userId, roleId } = this.userAssignForm
+
+      // 2 发送请求
+      const res = await this.$http.put(`users/${userId}/role`, {
+        rid: roleId
+      })
+
+      const { meta } = res.data
+      if (meta.status === 200) {
+        // 关闭对话框
+        this.userAssignDialog = false
+        // 重新刷新列表
+        this.getUserList(this.curPage)
+      }
     }
   }
 }
